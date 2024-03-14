@@ -8,7 +8,8 @@ import Image from "next/image";
 import { NavbarD } from "@/components/ui/Navbar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast";
+import React, { useRef } from "react";
 
 const AddPost = () => {
   const router = useRouter();
@@ -16,11 +17,14 @@ const AddPost = () => {
   //@ts-ignore
   const id = session?.user.id;
   //   console.log(id);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [file, setFile] = useState<File>();
+  const [imageSrc, setImageSrc] = useState<string>('');
   const { edgestore } = useEdgeStore();
   //   let url: string | undefined;
-  const [url, setUrl] = useState("");
-  console.log(url);
+  // const [url, setUrl] = useState("");
+  // console.log(url);
 
   const [post, setPost] = useState({
     title: "",
@@ -28,11 +32,22 @@ const AddPost = () => {
     publish: true,
   });
   const addPost = trpc.createPost.useMutation();
+  const handlePictureChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target?.files?.[0];
+    setFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event: ProgressEvent<FileReader>) => {
+        setImageSrc(event.target?.result as string); 
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div>
-      <Toaster position="top-right"/>
-        <NavbarD />
+      <Toaster position="top-right" />
+      <NavbarD />
       <div className="flex flex-col gap-2 lg:flex-row">
         <div className="flex-col h-3/4 w-4/5 mt-14 ml-20 pt-12  sm:ml-28 md:ml-40 lg:basis-1/2">
           <div className="text-2xl font-bold font-mono  mb-[30px] text-black md:text-3xl xl:text-4xl">
@@ -65,40 +80,9 @@ const AddPost = () => {
           <div className=" w-5/6 min-w-[200px] mb-4 flex justify-between font-mono font-bold gap-2">
             <button
               className="ml-10 sm:ml-20 border  flex-shrink-0  transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 px-6 bg-white shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none rounded-full"
-              onClick={async () => {
-                try {
-                  if (file) {
-                    const res = await edgestore.publicFiles.upload({
-                      file,
-                      onProgressChange: (progress) => {
-                        console.log(progress);
-                      },
-                    });
-                    //   console.log(res.url);
-                    //   url = res.url;
-                    setUrl(res.url);
-                    //   console.log(url);
-                  }
-                } catch (error) {
-                  if (error instanceof EdgeStoreApiClientError) {
-                    // if it fails due to the `maxSize` set in the router config
-                    if (error.data.code === "FILE_TOO_LARGE") {
-                      alert("File too large.");
-                    }
-                    if (error.data.code === "MIME_TYPE_NOT_ALLOWED") {
-                      alert(
-                        `File type not allowed. Allowed types are ${error.data.details.allowedMimeTypes.join(
-                          ", "
-                        )}`
-                      );
-                    }
-                    // if it fails during the `beforeUpload` check
-                    if (error.data.code === "UPLOAD_NOT_ALLOWED") {
-                      alert("You don't have permission to upload files here.");
-                    }
-                  }
-                }
-              }}
+              // onClick={async () => {
+                
+              // }}
               disabled={!file}
             >
               Upload Image
@@ -107,9 +91,11 @@ const AddPost = () => {
             <input
               type="file"
               className=" mt-2 "
-              onChange={(e) => {
-                setFile(e.target.files?.[0]);
-              }}
+              onChange={handlePictureChange}
+              ref={fileInputRef}
+              // (e) => {
+              //   setFile(e.target.files?.[0]);
+              // }
             />
           </div>
           <div className="relative w-5/6 min-w-[200px] mb-[4px] ml-2 h-10">
@@ -122,10 +108,18 @@ const AddPost = () => {
             <label className="flex w-1/4 items-center pl-7 font-semibold pointer-events-none text-black font-mono text-sm">
               Publish
             </label>
-              <button className="absolute right-4 font-mono font-semibold top-0 text-blue-400 text-sm" onClick={()=>{
-                setPost({title:"",content:"",publish:false})
-                setUrl("")
-              }}>Create New Post</button>
+            <button
+              className="absolute right-4 font-mono font-semibold top-0 text-blue-400 text-sm"
+              onClick={() => {
+                setPost({ title: "", content: "", publish: true });
+                setImageSrc("");
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = ""; // Clear the file input value
+                }
+              }}
+            >
+              Create New Post
+            </button>
           </div>
 
           {/* <div className="ml-[160px] mb-3"></div> */}
@@ -135,18 +129,69 @@ const AddPost = () => {
               type="button"
               onClick={async () => {
                 if (!post.title && !post.content) {
-                  toast.error('Title and Content are required',{duration:2000});
+                  toast.error("Title and Content are required", {
+                    duration: 2000,
+                  });
                   return;
                 }
+                let imageUrl = "";
+                try {
+                  if (file) {
+                    const res = await edgestore.publicFiles.upload({
+                      file,
+                      onProgressChange: (progress) => {
+                        console.log(progress);
+                      },
+                    });
+                    //   console.log(res.url);
+                    //   url = res.url;
+                    // setUrl(res.url);
+                    imageUrl = res.url;
+                    //   console.log(url);
+                  }
+                } catch (error) {
+                  if (error instanceof EdgeStoreApiClientError) {
+                    // if it fails due to the `maxSize` set in the router config
+                    if (error.data.code === "FILE_TOO_LARGE") {
+                      // alert("File too large.");
+                      toast.error("File too large", {duration: 3000,});
+                      return;
+                    }
+                    if (error.data.code === "MIME_TYPE_NOT_ALLOWED") {
+                      // alert(
+                      //   `File type not allowed. Allowed types are ${error.data.details.allowedMimeTypes.join(
+                      //     ", "
+                      //   )}`
+                      // );
+                      toast.error(`File type not allowed. Allowed types are ${error.data.details.allowedMimeTypes.join(
+                        ", "
+                      )}`, {duration: 3000,});
+                      return;
+                    }
+                    // if it fails during the `beforeUpload` check
+                    if (error.data.code === "UPLOAD_NOT_ALLOWED") {
+                      // alert("You don't have permission to upload files here.");
+                      toast.error("You don't have permission to upload files here", {
+                        duration: 3000,
+                    });
+                      return;
+                  }
+                }
+                // console.log("url", imageUrl);
+                
                 const response = await addPost.mutateAsync({
                   authorId: id,
                   title: post.title,
                   content: post.content,
                   published: post.publish,
-                  image: url || "",
+                  image: imageUrl,
                 });
 
                 console.log("post added", response);
+                toast.success("Post created successfully", {
+                  duration: 2000,
+                });
+              }
               }}
             >
               Create
@@ -161,8 +206,8 @@ const AddPost = () => {
             <h1 className=" text-3xl font-bold">{post.title}</h1>
           </div>
           <div>
-            {url ? (
-              <Image src={url} width={500} height={500} alt="Your image" />
+            {imageSrc ? (
+              <Image src={imageSrc} width={500} height={500} alt="Your image" />
             ) : null}
           </div>
           <div>
