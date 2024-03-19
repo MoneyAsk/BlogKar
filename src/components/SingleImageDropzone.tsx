@@ -150,6 +150,7 @@ const SingleImageDropzone = React.forwardRef<HTMLInputElement, InputProps>(
               <div className="text-gray-400">drag & drop to upload</div>
               <div className="mt-3">
                 <Button disabled={disabled}>select</Button>
+                <div></div>
               </div>
             </div>
           )}
