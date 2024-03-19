@@ -145,6 +145,36 @@ export const appRouter = router({
             }
         })
     }),
+    getPostbyAuthor:publicProcedure.input(z.string()).query(async(opts)=>{
+        return await prisma.post.findMany({
+            where:{
+                authorId:opts.input
+            }
+        })
+    }),
+    getLikesByUser:publicProcedure.input(z.string()).query(async(opts)=>{
+        return await prisma.like.findMany({
+            where:{
+                userId:opts.input
+            }
+        })
+    }),
+    getPostsbyIdArray:publicProcedure.input(z.array(z.string())).query(async(opts)=>{
+        return await prisma.post.findMany({
+            where:{
+                id:{
+                    in:opts.input
+                }
+            }
+        })
+    }),
+    getUser:publicProcedure.input(z.string()).query(async(opts)=>{
+        return await prisma.user.findUnique({
+            where:{
+                id:opts.input
+            }
+        })
+    }),
 
 });
     

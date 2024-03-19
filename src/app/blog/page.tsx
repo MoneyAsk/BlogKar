@@ -20,9 +20,9 @@ const BlogPage = () => {
     //   };
 
   return (
-    <div className="h-screen">
+    <div className="">
       <NavbarD />
-      {posts.isLoading && <div><Loading/></div>}
+      {posts.isLoading ?(<div><Loading/></div>):(
       <TracingBeam className="px-6 mt-[10px]">
         <div className="max-w-2xl mx-auto antialiased pt-4 relative">
           {posts.data?.map((item, index) => (
@@ -56,7 +56,7 @@ const BlogPage = () => {
             </div>
           ))}
         </div>
-      </TracingBeam>
+      </TracingBeam>)}
       {/* {JSON.stringify(posts.data)} */}
     </div>
   );
