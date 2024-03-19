@@ -15,12 +15,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Loading from "@/components/Loading";
 import { NavbarD } from "@/components/ui/Navbar";
+import { user } from "@nextui-org/theme";
 
 const Me = () => {
 const { data: session } = useSession();
 const router = useRouter();
 //@ts-ignore
 const post = trpc.getPostbyAuthor.useQuery(session?.user?.id);
+//@ts-ignore
+const userProfile = trpc.getProfile.useQuery(session?.user?.id);
+console.log(userProfile.data);
 //@ts-ignore
 const likes = trpc.getLikesByUser.useQuery(session?.user?.id);
 //   console.log(likes.data);
@@ -39,7 +43,7 @@ const userLikedPosts = trpc.getPostsbyIdArray.useQuery(liked);
         <div className=" basis-1/3 flex gap-4 ">
           <div className=" basis-1/3 flex items-center justify-end">
             <Image
-              src={session?.user?.image || "/noavatar.png"}
+              src={userProfile.data?.image || "/noavatar.png"}
               alt="Profile Picture"
               width={140}
               height={100}
@@ -56,7 +60,7 @@ const userLikedPosts = trpc.getPostsbyIdArray.useQuery(liked);
                 </span>
               </h1>
             </div>
-            <div className="">Life is to Short</div>
+            <div className="">{userProfile.data?.bio}</div>
             <div className="mt-auto text-xs text-gray-700">
               <Link href="/me/edit" className="">
                 {" "}
@@ -94,7 +98,7 @@ const userLikedPosts = trpc.getPostsbyIdArray.useQuery(liked);
                       <h1 className="font-mono mb-3 font-semibold text-sm">
                         {post.title}
                       </h1>
-                      <div className="w-full h-[170px]  mb-2">
+                      {post.image && <div className="w-full h-[170px]  mb-2">
                       {post.image && (
                         <Image
                           src={post.image}
@@ -106,7 +110,7 @@ const userLikedPosts = trpc.getPostsbyIdArray.useQuery(liked);
                           className=" mx-auto mb-4"
                         />
                       )}
-                      </div>
+                      </div>}
 
                       <p className="font-serif line-clamp-3">
                         {post.content}.......
@@ -134,7 +138,7 @@ const userLikedPosts = trpc.getPostsbyIdArray.useQuery(liked);
                       <h1 className="font-mono mb-3 font-semibold text-sm">
                         {post.title}
                       </h1>
-                      <div className="w-full h-[170px]  mb-2">
+                      {post.image && <div className="w-full h-[170px]  mb-2">
                       {post.image && (
                           <Image
                           src={post.image}
@@ -147,7 +151,7 @@ const userLikedPosts = trpc.getPostsbyIdArray.useQuery(liked);
                       <p className="font-serif line-clamp-3">
                         {post.content}.......
                       </p>
-                          </div>
+                          </div>}
                     </CarouselItem>
                   ))}
                 </CarouselContent>

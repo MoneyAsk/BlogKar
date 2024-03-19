@@ -20,6 +20,7 @@ const AddPost = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File>();
+  console.log(file);
   const [imageSrc, setImageSrc] = useState<string>('');
   const { edgestore } = useEdgeStore();
   //   let url: string | undefined;
@@ -83,7 +84,7 @@ const AddPost = () => {
               // onClick={async () => {
                 
               // }}
-              disabled={!file}
+              disabled={true}
             >
               Upload Image
             </button>
@@ -179,19 +180,19 @@ const AddPost = () => {
                 }
                 // console.log("url", imageUrl);
                 
-                const response = await addPost.mutateAsync({
-                  authorId: id,
-                  title: post.title,
-                  content: post.content,
-                  published: post.publish,
-                  image: imageUrl,
-                });
-
-                console.log("post added", response);
-                toast.success("Post created successfully", {
-                  duration: 2000,
-                });
               }
+              const response = await addPost.mutateAsync({
+                authorId: id,
+                title: post.title,
+                content: post.content,
+                published: post.publish,
+                image: imageUrl,
+              });
+
+              // console.log("post added", response);
+              toast.success("Post created successfully", {
+                duration: 2000,
+              });
               }}
             >
               Create

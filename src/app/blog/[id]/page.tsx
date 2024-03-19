@@ -17,15 +17,17 @@ const Id = ({ params }: any) => {
   const { data: session } = useSession();
   const post = trpc.getPost.useQuery(id);
   const user = trpc.getAuthorById.useQuery(post.data?.authorId ?? "");
+  // console.log(user.data)
   const addLike = trpc.postUserLike.useMutation();
   const isLiked = trpc.getUserLike.useQuery({
     // @ts-ignore
     userId: session?.user?.id,
     postId: post.data?.id || " ",
   });
-  console.log(isLiked);
+  // console.log(isLiked);
   const delLike = trpc.deleteLike.useMutation();
   const comments = trpc.getComments.useQuery(post.data?.id || "");
+  // console.log(comments.data);
   const createComment = trpc.createComment.useMutation();
   const [comment, setComment] = useState("");
       

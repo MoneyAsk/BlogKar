@@ -49,6 +49,7 @@ import { trpc } from "@/_trpc/client";
 
 export function LikesPic({id}:any) {
   const likes= trpc.getLikes.useQuery(id);
+  // const userProfile = trpc.getProfile
   const user = likes.data?.map((user:any)=>{
     return user.userId;
   }) || [];
@@ -63,10 +64,10 @@ export function LikesPic({id}:any) {
       id:user.id,
       name:user.name || user.username || "Anonymus",
       designation:"Software Engineer",
-      image:user.image || "/noavatar.png"
+      image:user?.Profile?.image || "/noavatar.png"
     });
   });
-  console.log(people);  
+  // console.log(people);  
   return (
     <div  className="flex flex-row items-center justify-start mb-10  mt-2 w-full">
       {people ? <AnimatedTooltip items={people} /> : null}

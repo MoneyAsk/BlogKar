@@ -62,7 +62,7 @@ const LoginPage = () => {
               alt="github"
               height={6}
               width={6}
-              className="w-6 h-6"
+              className="w-6 h-6 border-2"
             />
             Continue with Twiiter
           </button>

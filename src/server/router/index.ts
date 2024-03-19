@@ -19,6 +19,13 @@ export const appRouter = router({
         return await prisma.user.findUnique({
             where:{
                 id:opts.input
+            },
+            select:{
+                id:true,
+                name:true,
+                username:true,
+                image:true,
+                Profile:true
             }
         });
     }),
@@ -124,7 +131,15 @@ export const appRouter = router({
                 id:{
                     in:opts.input
                 }
+            },
+            select:{
+                id:true,
+                name:true,
+                username:true,
+                image:true,
+                Profile:true
             }
+
         })
     }),
     createPost:publicProcedure.input(z.object({
@@ -175,6 +190,43 @@ export const appRouter = router({
             }
         })
     }),
+    updateUserProfile:publicProcedure.input(z.object({
+        id:z.string(),
+        bio:z.string().optional(),
+        image:z.string().optional()
+    })).mutation(async(opts)=>{
+        let updateData={};
+        if (opts.input.bio) {
+            updateData = {
+                    bio: opts.input.bio
+                
+            };
+        }
+        if (opts.input.image) {
+            updateData= {
+                    image: opts.input.image
+            };
+        }
+        return await prisma.profile.upsert({
+            where:{
+                userId:opts.input.id
+            },
+            update:updateData,
+            create:{
+                userId:opts.input.id,
+                bio:opts.input.bio,
+                image:opts.input.image
+            }
+        })
+    }),
+    getProfile:publicProcedure.input(z.string()).query(async(opts)=>{
+        return await prisma.profile.findUnique({
+            where:{
+                userId:opts.input
+            }
+        })
+    }),
+
 
 });
     
