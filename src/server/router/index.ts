@@ -2,13 +2,14 @@ import {z} from "zod";
 import {router,publicProcedure} from "../trpc";
 import prisma from "@/db";
 import bcrypt from "bcrypt";
+import { TRPCError } from "@trpc/server";
 
 
 const userSchema = z.object({
     name: z.string(),
     username: z.string(),
     email: z.string().email(),
-    password: z.string().min(8),
+    password: z.string(),
   });
 
 export const appRouter = router({
@@ -31,8 +32,44 @@ export const appRouter = router({
     }),
     createUser:publicProcedure.input(userSchema)
         .mutation(async(opts)=>{
+            
+
+            const name = await prisma.user.findUnique({
+                where:{
+                    username:opts.input.username
+                }
+            })
+
+            if(name){
+                throw new TRPCError({
+                    code:"BAD_REQUEST",
+                    message:"[{\"path\":[\"username\"],\"message\":\"Username already exists!\"}]"
+                })
+            }
+            
+            const existingEmail = await prisma.user.findUnique({
+                    where: {
+                        email: opts.input.email
+                    }
+                });
+        
+            if (existingEmail) {
+                    throw new TRPCError({
+                            code:"BAD_REQUEST",
+                            message:"[{\"path\":[\"email\"],\"message\":\"Email already exists!\"}]"
+                    })
+            }
+            const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+            if (!opts.input.password.match(passwordRegex)) {
+                throw new TRPCError({
+                    code:"BAD_REQUEST",
+                    message:"[{\"path\":[\"password\"],\"message\":\"Password must contain at least one uppercase letter, one lowercase letter, one number and one special character!\"}]"
+                })
+            }
             const saltRounds = 12;
             const hashedPassword = await bcrypt.hash(opts.input.password, saltRounds);
+
+          
 
 
             const newUser = await prisma.user.upsert({
