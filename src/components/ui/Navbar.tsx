@@ -27,7 +27,7 @@ function Navbar({ className }: { className?: string }) {
   const { data: session } = useSession();
   //@ts-ignore
   const user = trpc.getUser.useQuery(session?.user?.id);
-  console.log(user.data);
+  // console.log(user.data);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   return (
     // fixed top-10
@@ -50,7 +50,7 @@ function Navbar({ className }: { className?: string }) {
         <div
           className=""
           onClick={() => {
-            router.push("/login");
+            router.push("/about");
           }}
         >
           <MenuItem
@@ -80,7 +80,7 @@ function Navbar({ className }: { className?: string }) {
           onMouseLeave={() => setIsDropdownOpen(false)}
         >
           <div className="basis-3/4 text-black text-xl font-mono font-bold cursor-pointer">
-            {user.data?.name || user.data?.username}
+            {user.data?.username||user.data?.name }
           </div>
           <div className="basis-1/4 py-0.5">
             <Image

@@ -1,18 +1,25 @@
 import Image from "next/image"
 import CommentName from "./CommentName";
 import { useEffect, useState } from "react";
-const Comments = ({user,comments}:any) =>{
+import { trpc } from "@/_trpc/client";
+const Comments = ({comments}:any) =>{
     // console.log(user);
     // console.log(comments.data);
+    const userIds = comments?.data?.map((comment: any) => comment.authorId) || [];
+    const userDetails = trpc.getUserByArrayIds.useQuery(userIds);
+    
+    // console.log(userDetails.data);
     
     
     
     return(
         comments.data?.map((comment:any)=>{
+            const userDetail = userDetails.data?.find((user: any) => user.id === comment.authorId);
+
             return(
                 <div key={comment.id} className="flex flex-row items-center justify-start mb-4 ml-  mt-2 w-full ">
                     <div className="w-14 h-14 rounded-full border-2 border-gray-300 flex-shrink-0 self-start">
-                        <Image src={user?.Profile?.image || "/noavatar.png"} width={100} height={100} alt="" className=" object-cover !m-0 !p-0 object-top rounded-full h-14 w-14 border-2 group-hover:scale-105 group-hover:z-30 border-white  relative transition duration-500" />
+                        <Image src={userDetail?.Profile?.image || "/noavatar.png"} width={100} height={100} alt="" className=" object-cover !m-0 !p-0 object-top rounded-full h-14 w-14 border-2 group-hover:scale-105 group-hover:z-30 border-white  relative transition duration-500" />
                     </div>
                     <div className="flex flex-col items-start justify-start ml-4 flex-wrap flex-shrink">
                         <CommentName authorId={comment.authorId}/>

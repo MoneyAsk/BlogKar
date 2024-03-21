@@ -48,14 +48,16 @@ import { trpc } from "@/_trpc/client";
 // ];
 
 export function LikesPic({id}:any) {
-  const likes= trpc.getLikes.useQuery(id);
+  const likes= trpc.getLikes.useQuery(id,{
+    refetchInterval: 5000,
+  });
   // const userProfile = trpc.getProfile
   const user = likes.data?.map((user:any)=>{
     return user.userId;
   }) || [];
 
   const User = trpc.getUserLikepfps.useQuery(user);
-  console.log(User.data);
+  // console.log(User.data);
 
   
 

@@ -52,7 +52,7 @@ const LoginPage = () => {
           </button>
         </div>
 
-        <div className='ml-5 mb-3'>
+        {/* <div className='ml-5 mb-3'>
           <button
             className="w-[267px] align-middle select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-sm py-3.5 px-7 rounded-lg border border-blue-gray-500 text-blue-gray-500 hover:opacity-75 focus:ring focus:ring-blue-gray-200 active:opacity-[0.85] flex items-center gap-3"
             type="button"
@@ -66,7 +66,7 @@ const LoginPage = () => {
             />
             Continue with Twiiter
           </button>
-        </div>
+        </div> */}
         
         <div className='flex mb-3  w-[267px] ml-5'>
             <hr className='w-full border-t border-blue-gray-300 my-4 border-2'/>
@@ -113,7 +113,7 @@ const LoginPage = () => {
         </div>
 
         <div className="ml-5">
-            Doesn&apos;t have an account? <a href="#" className="text-blue-500">Sign up</a>
+            Doesn&apos;t have an account? <a href="/signup" className="text-blue-500">Sign up</a>
         </div>
 
       </div>

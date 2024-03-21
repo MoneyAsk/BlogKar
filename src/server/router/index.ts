@@ -270,6 +270,22 @@ export const appRouter = router({
             }
         })
     }),
+    getUserByArrayIds:publicProcedure.input(z.array(z.string())).query(async(opts)=>{
+        return await prisma.user.findMany({
+            where:{
+                id:{
+                    in:opts.input
+                },
+            },
+                select:{
+                    id:true,
+                    name:true,
+                    username:true,
+                    image:true,
+                    Profile:true
+                }
+            })
+    }),
 
 
 });

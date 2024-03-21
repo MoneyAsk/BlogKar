@@ -17,14 +17,16 @@ const Id = ({ params }: any) => {
   const { data: session } = useSession();
   const post = trpc.getPost.useQuery(id);
   const user = trpc.getAuthorById.useQuery(post.data?.authorId ?? "");
-  // console.log(user.data)
+    // @ts-ignore
+  const userInsession = trpc.getUser.useQuery(session?.user?.id);
+  // console.log(userInsession.data)
   const addLike = trpc.postUserLike.useMutation();
   const isLiked = trpc.getUserLike.useQuery({
     // @ts-ignore
     userId: session?.user?.id,
     postId: post.data?.id || " ",
   });
-  // console.log(isLiked);
+  // console.log(isLiked.data);
   const delLike = trpc.deleteLike.useMutation();
   const comments = trpc.getComments.useQuery(post.data?.id || "");
   // console.log(comments.data);
@@ -72,6 +74,10 @@ const Id = ({ params }: any) => {
       // @ts-ignore
 
       if (session?.user?.id && post.data?.id) {
+        if (comment.length < 1) {
+          return;
+        }
+       
         createComment.mutate({
           // @ts-ignore
 
@@ -122,9 +128,15 @@ const Id = ({ params }: any) => {
                 isLiked={isLiked}
               />
             </div>
-           {isLiked.data && <div className=" basis-3/4 self-end font-mono mt-4">
+            
+            {/* {isLiked.data && <div className=" basis-3/4 self-end font-mono mt-4">
               Liked by <LikesPic id={id} />
-            </div>}
+            </div>} */}
+
+           <div className=" basis-3/4 self-end font-mono mt-4">
+              Liked by <LikesPic id={id} />
+            </div>
+
           </div>
 
           <div className="  rounded-md flex-col  py-6  mb-4 justify-between  overflow-hidden font-mono">
@@ -133,7 +145,7 @@ const Id = ({ params }: any) => {
             </h1>
             <hr className=" border-[1.5px]" />
             <div className="px-4 py-2">
-              <Comments user={user.data} comments={comments} />
+              <Comments  comments={comments} />
             </div>
             <div className="flex flex-col items-center justify-center ">
               <input
@@ -141,7 +153,7 @@ const Id = ({ params }: any) => {
                 onKeyDown={commentHandler}
                 value={comment}
                 onChange={(e) => {
-                  setComment(e.target.value);
+                  setComment(e.target.value.trim());
                 }}
                 placeholder="Write a comment"
                 className="w-[90%] h-12 rounded-md border-2 text-black border-gray-300 px-4"
