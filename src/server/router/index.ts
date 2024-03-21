@@ -224,6 +224,13 @@ export const appRouter = router({
         return await prisma.user.findUnique({
             where:{
                 id:opts.input
+            },
+            select:{
+                id:true,
+                name:true,
+                username:true,
+                image:true,
+                Profile:true
             }
         })
     }),

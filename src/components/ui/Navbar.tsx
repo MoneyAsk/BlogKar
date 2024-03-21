@@ -1,8 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import { HoveredLink, Menu, MenuItem, ProductItem } from "@/components/ui/floating-navbar";
+import {
+  HoveredLink,
+  Menu,
+  MenuItem,
+  ProductItem,
+} from "@/components/ui/floating-navbar";
 import { cn } from "@/utils/cn";
 import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+import { trpc } from "@/_trpc/client";
+import Image from "next/image";
+import Link from "next/link";
 
 export function NavbarD() {
   return (
@@ -15,60 +24,103 @@ export function NavbarD() {
 function Navbar({ className }: { className?: string }) {
   const [active, setActive] = useState<string | null>(null);
   const router = useRouter();
+  const { data: session } = useSession();
+  //@ts-ignore
+  const user = trpc.getUser.useQuery(session?.user?.id);
+  console.log(user.data);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   return (
     // fixed top-10
     <div
-      className={cn(" inset-x-0 max-w-2xl mx-auto z-50 mt-[10px]", className)}
+      className={cn("  inset-x-0 max-w-2xl mx-auto z-50 mt-[10px]", className)}
     >
       <Menu setActive={setActive}>
-        <MenuItem setActive={setActive} active={active} item="Services" >
-          <div className="flex flex-col space-y-4 text-sm">
-            <HoveredLink href="/web-dev">Web Development</HoveredLink>
-            <HoveredLink href="/interface-design">Interface Design</HoveredLink>
-            <HoveredLink href="/seo">Search Engine Optimization</HoveredLink>
-            <HoveredLink href="/branding">Branding</HoveredLink>
-          </div>
-        </MenuItem>
-        <div onClick={()=>{router.push("/login")}}>
-        <MenuItem setActive={setActive} active={active} item="About"></MenuItem>
-
+        <div
+          className=""
+          onClick={() => {
+            router.push("/blog");
+          }}
+        >
+          <MenuItem
+            setActive={setActive}
+            active={active}
+            item="Blog"
+          ></MenuItem>
         </div>
-        <MenuItem setActive={setActive} active={active} item="Products">
-          <div className="  text-sm grid grid-cols-2 gap-10 p-4">
-            <ProductItem
-              title="Algochurn"
-              href="https://algochurn.com"
-              src="https://assets.aceternity.com/demos/algochurn.webp"
-              description="Prepare for tech interviews like never before."
-            />
-            <ProductItem
-              title="Tailwind Master Kit"
-              href="https://tailwindmasterkit.com"
-              src="https://assets.aceternity.com/demos/tailwindmasterkit.webp"
-              description="Production ready Tailwind css components for your next project"
-            />
-            <ProductItem
-              title="Moonbeam"
-              href="https://gomoonbeam.com"
-              src="https://assets.aceternity.com/demos/Screenshot+2024-02-21+at+11.51.31%E2%80%AFPM.png"
-              description="Never write from scratch again. Go from idea to blog in minutes."
-            />
-            <ProductItem
-              title="Rogue"
-              href="https://userogue.com"
-              src="https://assets.aceternity.com/demos/Screenshot+2024-02-21+at+11.47.07%E2%80%AFPM.png"
-              description="Respond to government RFPs, RFIs and RFQs 10x faster using AI"
+        <div
+          className=""
+          onClick={() => {
+            router.push("/login");
+          }}
+        >
+          <MenuItem
+            setActive={setActive}
+            active={active}
+            item="About"
+          ></MenuItem>
+        </div>
+        <div
+          className=""
+          onClick={() => {
+            router.push("/addPost");
+          }}
+        >
+          <MenuItem
+            setActive={setActive}
+            active={active}
+            item="AddPost"
+          ></MenuItem>
+        </div>
+
+        <div className="">
+         {session?.user?(
+        <div
+          className=" w-32 flex relative "
+          onMouseEnter={() => setIsDropdownOpen(true)}
+          onMouseLeave={() => setIsDropdownOpen(false)}
+        >
+          <div className="basis-3/4 text-black text-xl font-mono font-bold cursor-pointer">
+            {user.data?.name || user.data?.username}
+          </div>
+          <div className="basis-1/4 py-0.5">
+            <Image
+              src={user.data?.Profile?.image || "/noavatar.png"}
+              alt="profile"
+              width="25"
+              height="25"
+              className="mx-auto rounded-full"
             />
           </div>
-        </MenuItem>
-        <MenuItem setActive={setActive} active={active} item="Pricing">
-          <div className="flex flex-col space-y-4 text-sm">
-            <HoveredLink href="/hobby">Hobby</HoveredLink>
-            <HoveredLink href="/individual">Individual</HoveredLink>
-            <HoveredLink href="/team">Team</HoveredLink>
-            <HoveredLink href="/enterprise">Enterprise</HoveredLink>
-          </div>
-        </MenuItem>
+          {isDropdownOpen && (
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-32 flex flex-col space-y-4 text-sm bg-white backdrop-blur-sm rounded-sm overflow-hidden border border-black/[0.2] dark:border-white/[0.2] shadow-xl">
+              <Link
+                href="/me"
+                className="w-full px-4 py-2 text-left text-neutral-700 dark:text-neutral-200 hover:text-black hover:bg-gray-100"
+              >
+                Profile
+              </Link>
+
+              {session?.user ? (
+                <button className="w-full px-4 py-2 text-left hover:bg-gray-100" onClick={()=>{signOut();}} >
+                  Log Out
+                </button>
+              ) : (
+                <Link
+                  href="/login"
+                  className="w-full px-4 py-2 text-left text-neutral-700 dark:text-neutral-200 hover:text-black hover:bg-gray-100"
+                >
+                  Login
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+        ):(
+          <Link href="/login" className="text-black text-xl font-mono font-bold cursor-pointer">
+            Login
+          </Link>
+        )}
+        </div>
       </Menu>
     </div>
   );

@@ -10,10 +10,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import React, { useRef } from "react";
-
+import { useEffect } from 'react';
 const AddPost = () => {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session,status } = useSession();
   //@ts-ignore
   const id = session?.user.id;
   //   console.log(id);
@@ -44,6 +44,15 @@ const AddPost = () => {
       reader.readAsDataURL(file);
     }
   };
+
+  // useEffect(() => {
+  //   if (status === 'loading') return; // If session is still loading, do nothing
+
+  //   if (!session) {
+  //     // If user is not authenticated, redirect to login page
+  //     router.push('/login');
+  //   }
+  // }, [session, status, router]);
 
   return (
     <div>

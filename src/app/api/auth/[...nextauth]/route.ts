@@ -17,7 +17,10 @@ import prisma from "@/db";
 
 export const authOptions:NextAuthOptions ={
   adapter: PrismaAdapter(prisma),
-  providers: [
+  // pages: {
+  //   signIn:"/login"
+  // },
+    providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
